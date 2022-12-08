@@ -4,8 +4,15 @@ defmodule ExWorkerbook.Plugins.Sorter do
   @impl ExWorkerbook.Plugins
   def call(values, options \\ []) do
     case options[:order] do
-      nil -> values
-      order -> Enum.sort_by(values, &row_id/1, order)
+      nil ->
+        values
+
+      {fun, order} when is_function(fun, 1) ->
+        Enum.sort_by(values, fun, order)
+
+      order ->
+        Enum.sort_by(values, &row_id/1, order)
+
     end
   end
 
