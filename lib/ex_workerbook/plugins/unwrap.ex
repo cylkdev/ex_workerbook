@@ -30,9 +30,9 @@ defmodule ExWorkerbook.Plugins.Unwrap do
     ]
   """
 
-  @behaviour ExWorkerbook.Plugins
+  @behaviour ExWorkerbook.Adapter.Plugin
 
-  @impl ExWorkerbook.Plugins
+  @impl ExWorkerbook.Adapter.Plugin
   def call(enum, opts \\ []) when is_list(enum) or is_map(enum) do
     fun = Keyword.get(opts, :with, &Function.identity/1)
     enum |> Enum.reduce([], &unwrap_enumerable(fun, &1, &2))

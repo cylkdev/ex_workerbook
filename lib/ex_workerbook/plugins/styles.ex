@@ -1,9 +1,9 @@
 defmodule ExWorkerbook.Plugins.Styles do
-  @behaviour ExWorkerbook.Plugins
+  @behaviour ExWorkerbook.Adapter.Plugin
 
   require Integer
 
-  @impl ExWorkerbook.Plugins
+  @impl ExWorkerbook.Adapter.Plugin
   def call(values, options \\ []) do
     Enum.reduce(options, values, &maybe_transform_values/2)
   end

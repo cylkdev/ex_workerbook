@@ -1,7 +1,10 @@
 defmodule ExWorkerbook.Actions do
+  @behaviour ExWorkerbook.Adapter.Actions
+
   alias Elixlsx.Sheet
   alias ExWorkerbook.Context
 
+  @impl ExWorkerbook.Adapter.Actions
   def convert_to_action(%Context{} = context, fun) when is_function(fun, 1) do
     case fun.(context) do
       %Context{} ->
@@ -19,6 +22,7 @@ defmodule ExWorkerbook.Actions do
     end
   end
 
+  @impl ExWorkerbook.Adapter.Actions
   def convert_to_action(%Context{} = context, params) when is_list(params) or is_map(params) do
     Enum.reduce(params, context, &convert_params_to_action/2)
   end

@@ -1,4 +1,6 @@
 defmodule ExWorkerbook.Renderer do
+  @behaviour ExWorkerbook.Adapter.Renderer
+
   alias ExWorkerbook.Context
 
   @type context :: Context.t()
@@ -6,16 +8,7 @@ defmodule ExWorkerbook.Renderer do
   @type params :: map
   @type layout :: :horizontal | :vertical | any
   @type rows :: [tuple(), ...]
-  @type list_of_rowss :: [rows, ...]
   @type options :: Keyword.t()
-
-  @doc """
-  Renders a list of tuples to a `Elixlsx.Sheet` struct via the
-  specified layout.
-
-  Returns a `ExWorkerbook.Context` struct.
-  """
-  @callback render(context, layout, rows, options) :: context
 
   @doc """
   Renders a list of tuples to a `Elixlsx.Sheet` struct via the
@@ -26,6 +19,7 @@ defmodule ExWorkerbook.Renderer do
   Raises if the value is not a list of tuples that starts with
   `{:key, _, _, _}` or `{:value, _, _, _}`.
   """
+  @impl ExWorkerbook.Adapter.Renderer
   @spec render(context, layout, rows, options) :: context
   def render(%Context{} = context, layout, values, options \\ []) do
     case values do
