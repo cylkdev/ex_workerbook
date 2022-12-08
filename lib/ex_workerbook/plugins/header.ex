@@ -1,7 +1,7 @@
 defmodule ExWorkerbook.Plugins.Header do
-  @behaviour ExWorkerbook.Plugins
+  @behaviour ExWorkerbook.Adapter.Plugin
 
-  @impl ExWorkerbook.Plugins
+  @impl ExWorkerbook.Adapter.Plugin
   def call(values, options \\ []) do
     if options[:headers] === false do
       Enum.reject(values, &map_row_key?/1)

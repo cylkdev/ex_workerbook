@@ -2,17 +2,7 @@ defmodule ExWorkerbook.Plugins do
   @moduledoc """
   """
 
-  alias __MODULE__
-
-  @doc """
-  A user customizable callback which is used to build the Plugins pipeline.
-
-  This can be used to transform job values or extend metrics.
-
-  This callback is invoked during the sheet build pipeline for each job
-  before the rendering.
-  """
-  @callback call(list | any, Keyword.t()) :: list
+  alias ExWorkerbook.Plugins
 
   @doc """
   ...
@@ -29,7 +19,8 @@ defmodule ExWorkerbook.Plugins do
   end
 
   defp default_extra_plugins, do: [
+    Plugins.Sorter,
     Plugins.Styles,
-    Plugins.Header
+    Plugins.Header,
   ]
 end
