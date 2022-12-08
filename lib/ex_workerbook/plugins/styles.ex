@@ -7,7 +7,7 @@ defmodule ExWorkerbook.Plugins.Styles do
   end
 
   defp maybe_transform_values({:all, opts}, rows) do
-    acc_rows_sheet_opts(rows, opts)
+    merge_all_sheet_opts(rows, opts)
   end
 
   defp maybe_transform_values({:pos, args}, rows) do
@@ -79,6 +79,7 @@ defmodule ExWorkerbook.Plugins.Styles do
 
       [{:value, _, _, _} | _] ->
         transform_list_opts(rows, opts, &(&1 === pos))
+
     end
   end
 
@@ -89,7 +90,7 @@ defmodule ExWorkerbook.Plugins.Styles do
     |> Enum.reduce([], fn {chunk, index}, acc ->
       chunk =
         if selector_fun.(index) do
-          acc_rows_sheet_opts(chunk, sheet_opts)
+          merge_all_sheet_opts(chunk, sheet_opts)
         else
           chunk
         end
@@ -101,19 +102,22 @@ defmodule ExWorkerbook.Plugins.Styles do
   defp transform_list_opts(rows, opts, selector_fun) do
     rows
     |> Enum.with_index()
-    |> Enum.map(fn {{type, id, value, sheet_opts} = row, index} ->
-      case selector_fun.(index) do
-        false -> {type, id, value, sheet_opts ++ opts}
-        true -> row
+    |> Enum.map(fn {row, index} ->
+      if selector_fun.(index) do
+        merge_sheet_opts(row, opts)
+      else
+        row
       end
     end)
   end
 
-  defp acc_rows_sheet_opts(rows, opts) do
-    Enum.map(rows, fn {type, id, value, sheet_opts} ->
-      sheet_opts = Keyword.merge(sheet_opts, opts)
-      {type, id, value, sheet_opts}
-    end)
+  defp merge_all_sheet_opts(rows, opts) do
+    Enum.map(rows, &merge_sheet_opts(&1, opts))
+  end
+
+  defp merge_sheet_opts({type, id, value, sheet_opts}, opts) do
+    sheet_opts = Keyword.merge(sheet_opts, opts)
+    {type, id, value, sheet_opts}
   end
 
   defp even?(num), do: rem(num, 2) === 0
