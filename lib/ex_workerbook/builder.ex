@@ -37,14 +37,12 @@ defmodule ExWorkerbook.Builder do
   """
   def build(builder, options \\ []) do
     builder.jobs
-    |> Enum.map(&put_job_plugins_result(&1, options))
+    |> Enum.map(&put_job_result/1)
     |> Enum.reduce(builder, &render_job(&1, &2, options))
   end
 
-  defp put_job_plugins_result(job, options) do
-    options = Keyword.merge(job.options, options)
-    result = Plugins.call(job.arg, options)
-
+  defp put_job_result(job) do
+    result = Plugins.call(job.arg, job.options)
     Map.put(job, :result, result)
   end
 

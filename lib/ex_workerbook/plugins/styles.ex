@@ -1,13 +1,15 @@
 defmodule ExWorkerbook.Plugins.Styles do
   @behaviour ExWorkerbook.Plugins
 
+  require Integer
+
   @impl ExWorkerbook.Plugins
   def call(values, options \\ []) do
     Enum.reduce(options, values, &maybe_transform_values/2)
   end
 
   defp maybe_transform_values({:all, opts}, rows) do
-    acc_rows_sheet_opts(rows, opts)
+    merge_all_sheet_opts(rows, opts)
   end
 
   defp maybe_transform_values({:pos, args}, rows) do
@@ -30,16 +32,16 @@ defmodule ExWorkerbook.Plugins.Styles do
     case rows do
       [{:key, _, _, _} | _] ->
         if action === :odd do
-          transform_map_opts(rows, opts, &odd?/1)
+          transform_map_opts(rows, opts, &Integer.is_odd/1)
         else
-          transform_map_opts(rows, opts, &even?/1)
+          transform_map_opts(rows, opts, &Integer.is_even/1)
         end
 
       [{:value, _, _, _} | _] ->
         if action === :odd do
-          transform_list_opts(rows, opts, &odd?/1)
+          transform_list_opts(rows, opts, &Integer.is_odd/1)
         else
-          transform_list_opts(rows, opts, &even?/1)
+          transform_list_opts(rows, opts, &Integer.is_even/1)
         end
     end
   end
@@ -79,6 +81,7 @@ defmodule ExWorkerbook.Plugins.Styles do
 
       [{:value, _, _, _} | _] ->
         transform_list_opts(rows, opts, &(&1 === pos))
+
     end
   end
 
@@ -89,7 +92,7 @@ defmodule ExWorkerbook.Plugins.Styles do
     |> Enum.reduce([], fn {chunk, index}, acc ->
       chunk =
         if selector_fun.(index) do
-          acc_rows_sheet_opts(chunk, sheet_opts)
+          merge_all_sheet_opts(chunk, sheet_opts)
         else
           chunk
         end
@@ -101,21 +104,22 @@ defmodule ExWorkerbook.Plugins.Styles do
   defp transform_list_opts(rows, opts, selector_fun) do
     rows
     |> Enum.with_index()
-    |> Enum.map(fn {{type, id, value, sheet_opts} = row, index} ->
-      case selector_fun.(index) do
-        false -> {type, id, value, sheet_opts ++ opts}
-        true -> row
+    |> Enum.map(fn {row, index} ->
+      if selector_fun.(index) do
+        merge_sheet_opts(row, opts)
+      else
+        row
       end
     end)
   end
 
-  defp acc_rows_sheet_opts(rows, opts) do
-    Enum.map(rows, fn {type, id, value, sheet_opts} ->
-      sheet_opts = Keyword.merge(sheet_opts, opts)
-      {type, id, value, sheet_opts}
-    end)
+  defp merge_all_sheet_opts(rows, opts) do
+    Enum.map(rows, &merge_sheet_opts(&1, opts))
   end
 
-  defp even?(num), do: rem(num, 2) === 0
-  defp odd?(num), do: !even?(num)
+  defp merge_sheet_opts({type, id, value, sheet_opts}, opts) do
+    sheet_opts = Keyword.merge(sheet_opts, opts)
+    {type, id, value, sheet_opts}
+  end
+
 end
