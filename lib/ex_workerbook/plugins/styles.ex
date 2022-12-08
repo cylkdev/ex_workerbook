@@ -1,6 +1,8 @@
 defmodule ExWorkerbook.Plugins.Styles do
   @behaviour ExWorkerbook.Plugins
 
+  require Integer
+
   @impl ExWorkerbook.Plugins
   def call(values, options \\ []) do
     Enum.reduce(options, values, &maybe_transform_values/2)
@@ -30,16 +32,16 @@ defmodule ExWorkerbook.Plugins.Styles do
     case rows do
       [{:key, _, _, _} | _] ->
         if action === :odd do
-          transform_map_opts(rows, opts, &odd?/1)
+          transform_map_opts(rows, opts, &Integer.is_odd/1)
         else
-          transform_map_opts(rows, opts, &even?/1)
+          transform_map_opts(rows, opts, &Integer.is_even/1)
         end
 
       [{:value, _, _, _} | _] ->
         if action === :odd do
-          transform_list_opts(rows, opts, &odd?/1)
+          transform_list_opts(rows, opts, &Integer.is_odd/1)
         else
-          transform_list_opts(rows, opts, &even?/1)
+          transform_list_opts(rows, opts, &Integer.is_even/1)
         end
     end
   end
@@ -120,6 +122,4 @@ defmodule ExWorkerbook.Plugins.Styles do
     {type, id, value, sheet_opts}
   end
 
-  defp even?(num), do: rem(num, 2) === 0
-  defp odd?(num), do: !even?(num)
 end
