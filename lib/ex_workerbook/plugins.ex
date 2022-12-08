@@ -29,7 +29,8 @@ defmodule ExWorkerbook.Plugins do
   end
 
   defp default_extra_plugins, do: [
+    Plugins.Sorter,
     Plugins.Styles,
-    Plugins.Header
+    Plugins.Header,
   ]
 end
